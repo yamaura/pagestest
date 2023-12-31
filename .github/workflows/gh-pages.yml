@@ -13,7 +13,8 @@ jobs:
     - name: install wasm-pack
       run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 
-
+    - name: Setup Pages
+      uses: actions/configure-pages@v1
 
     - run: |
         mkdir -p out
@@ -21,13 +22,10 @@ jobs:
         git fetch --prune --unshallow # for git describe
         git describe --dirty --always
 
-    - uses: actions/upload-artifact@v3
-      with:
-        name: gh-pages
-        path: out
     - uses: actions/upload-pages-artifact@v2
       with:
         path: out
+        if-no-files-found: error
 
   deploy:
     needs: build
