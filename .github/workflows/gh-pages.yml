@@ -6,12 +6,14 @@ on:
     - main
 
 jobs:
-  build-deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
     - name: install wasm-pack
       run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+
+
 
     - run: |
         mkdir -p out
@@ -19,8 +21,23 @@ jobs:
         git fetch --prune --unshallow # for git describe
         git describe --dirty --always
 
-    - name: deploy
-      uses: peaceiris/actions-gh-pages@v3
+    - uses: actions/upload-artifact@v3
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./out
+        name: gh-pages
+        path: out
+    - uses: actions/upload-pages-artifact@v4
+      with:
+        path: out
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest 
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      pages: write
+      id-token: write
+    steps:
+      - uses: actions/deploy-pages@v4
+        id: deployment
