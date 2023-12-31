@@ -13,9 +13,14 @@ jobs:
     - name: install wasm-pack
       run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 
-    - run: mkdir -p out
-    - run: date >> out/index.html
-    - run: git describe --dirty >> out/index.html
+    - name: Git describe
+      id: ghd
+      uses: proudust/gh-describe@v1
+
+    - run: |
+      mkdir -p out
+      date >> out/index.html
+      echo "${{ steps.ghd.outputs.describe }}" >> out/index.html
 
     - name: deploy
       uses: peaceiris/actions-gh-pages@v3
